@@ -1,6 +1,3 @@
-use std::fs;
-use std::io::BufRead;
-
 const SAFETY_THRESHOLD: i32 = 3;
 
 struct Report {
@@ -8,17 +5,12 @@ struct Report {
 }
 
 fn main() {
-    let input = fs::read_to_string("resources/input.txt").expect("Where input file????");
-    let mut num_safe_reports = 0;
+    let input = std::fs::read_to_string("resources/input.txt").expect("Where input file????");
     let reports: Vec<Report> = get_reports(&input);
-
-    for report in reports {
-        if (evaluate_safety(&report.values)) {
-            num_safe_reports = num_safe_reports + 1;
-        } 
-    }
-
-    println!("Safe reports: {num_safe_reports}")
+    let part_one = evaluate_safe_reports(&reports, false);
+    let part_two = evaluate_safe_reports(&reports, true);
+    println!("Solution part 1: {part_one} safe reports");
+    println!("Solution part 2: {part_two} safe reports after dampening.")
 }
 
 fn get_reports(input: &String) -> Vec<Report> {
@@ -34,7 +26,15 @@ fn get_reports(input: &String) -> Vec<Report> {
     reports
 }
 
-fn evaluate_safety(values: &Vec<i32>) -> bool {
+fn evaluate_safe_reports(reports: &Vec<Report>, use_dampener: bool) -> usize {
+    reports
+        .iter()
+        .map(|report| is_safe(&report.values, use_dampener))
+        .filter(|result| *result == true)
+        .count()
+}
+
+fn is_safe(values: &Vec<i32>, use_dampener: bool) -> bool {
     let ascending = values.get(0) < values.get(1);
     for i in 1..values.len() {
         let cur = values[i];
@@ -43,8 +43,23 @@ fn evaluate_safety(values: &Vec<i32>) -> bool {
             || ((cur - prev < 0) == ascending)
             || (cur == prev)
         {
-            return false;
+            return if use_dampener {
+                problem_dampener(values)
+            } else {
+                false
+            };
         }
     }
     true
+}
+
+fn problem_dampener(values: &Vec<i32>) -> bool {
+    for i in 0..values.len() {
+        let mut dampened_values = values.clone();
+        dampened_values.remove(i);
+        if is_safe(&dampened_values, false) {
+            return true;
+        }
+    }
+    false
 }
