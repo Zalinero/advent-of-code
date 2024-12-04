@@ -5,7 +5,7 @@ struct Report {
 }
 
 fn main() {
-    let input = std::fs::read_to_string("resources/input.txt").expect("Where input file????");
+    let input = std::fs::read_to_string("input.txt").expect("Where input file????");
     let reports: Vec<Report> = get_reports(&input);
     let part_one = evaluate_safe_reports(&reports, false);
     let part_two = evaluate_safe_reports(&reports, true);

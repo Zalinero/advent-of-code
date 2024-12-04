@@ -1,7 +1,7 @@
 use std::fs;
 
 fn main() {
-    let input = fs::read_to_string("resources/input.txt").expect("Where input file????");
+    let input = fs::read_to_string("input.txt").expect("Where input file????");
     let mut total_distance: i32 = 0;
     let mut similarity_score: i32 = 0;
     let mut list_1: Vec<i32> = vec![];
