@@ -53,7 +53,7 @@ fn make_the_steps(rules: &Vec<Rule>, updates: &Vec<Vec<usize>>) -> (i32, i32) {
     println!("found {} bad updates", misshapen_ones.len());
     let mut fixed = 1;
     for update in misshapen_ones {
-        result2 = result2 + get_middle(&fix_it(update,rules)) as i32;
+        result2 = result2 + get_middle(&fix_it(update, rules)) as i32;
         println!("fixed {} updates", fixed);
         fixed += 1;
     }
@@ -71,37 +71,36 @@ fn update_valid(update: &Vec<usize>, rules: &Vec<Rule>) -> bool {
 }
 
 fn update_valid_rule(update: &Vec<usize>, rule: &Rule) -> bool {
-        let fst_idx = update.iter().position(|&e| e == rule.first);
-        let snd_idx = update.iter().position(|&e| e == rule.second);
-        match fst_idx {
-            Some(fst) => snd_idx.is_none_or(|snd| snd > fst),
-            _ => true,
-        }
+    let fst_idx = update.iter().position(|&e| e == rule.first);
+    let snd_idx = update.iter().position(|&e| e == rule.second);
+    match fst_idx {
+        Some(fst) => snd_idx.is_none_or(|snd| snd > fst),
+        _ => true,
     }
+}
 
-    fn get_middle(update: &Vec<usize>) -> usize {
-        let middle = update[(update.len() / 2)];
-        middle
+fn get_middle(update: &Vec<usize>) -> usize {
+    let middle = update[(update.len() / 2)];
+    middle
+}
+
+fn fix_it(update: &Vec<usize>, rules: &Vec<Rule>) -> Vec<usize> {
+    let mut update = update.clone();
+    if (update_valid(&update, rules)) {
+        return update;
     }
-
-    fn fix_it(update: &Vec<usize>, rules: &Vec<Rule>) -> Vec<usize> {
-        let mut update = update.clone();
-        if (update_valid(&update, rules)) {
-            return update;
-        }
-        for rule in rules {
-                let fst = update.iter().position(|r| *r==rule.first);
-                let snd = update.iter().position(|r| *r==rule.second);
-                match (fst, snd) {
-                    (Some(f), Some(s)) =>
-                        {
-                            if f > s {
-                                update.swap(f,s);
-                                return fix_it(&update, rules)
-                            }
-                        },
-                    _ => continue
+    for rule in rules {
+        let fst = update.iter().position(|r| *r == rule.first);
+        let snd = update.iter().position(|r| *r == rule.second);
+        match (fst, snd) {
+            (Some(f), Some(s)) => {
+                if f > s {
+                    update.swap(f, s);
+                    return fix_it(&update, rules);
                 }
             }
-        update
+            _ => continue,
+        }
     }
+    update
+}
