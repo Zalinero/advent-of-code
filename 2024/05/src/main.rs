@@ -4,13 +4,19 @@ struct Rule {
     second: usize,
 }
 
+impl PartialEq for Rule {
+    fn eq(&self, other: &Self) -> bool {
+        self.first == other.first && self.second == other.second
+    }
+}
+
 fn main() {
     let input = std::fs::read_to_string("input.txt").expect("Where input file????");
     let split_input = input.split("\n\n").collect::<Vec<&str>>();
     let rules: Vec<Rule> = read_the_rules(split_input[0]);
     let updates: Vec<Vec<usize>> = get_the_news(split_input[1]);
-    let result_one = make_the_steps(&rules, &updates);
-    println!("Result one: {}", result_one); // 4904 too low
+    let result = make_the_steps(&rules, &updates);
+    println!("Result one: {}, Result 2: {}", result.0, result.1);
 }
 
 fn read_the_rules(input_rules: &str) -> Vec<Rule> {
@@ -39,14 +45,23 @@ fn get_the_news(input_updates: &str) -> Vec<Vec<usize>> {
         .collect()
 }
 
-fn make_the_steps(rules: &Vec<Rule>, updates: &Vec<Vec<usize>>) -> i32 {
-    let mut result: i32 = 0;
+fn make_the_steps(rules: &Vec<Rule>, updates: &Vec<Vec<usize>>) -> (i32, i32) {
+    let mut result1 = 0;
+    let mut result2 = 0;
+    let mut misshapen_ones: Vec<&Vec<usize>> = vec![];
     for update in updates {
         if update_valid(update, rules) {
-            result = result + get_middle(update) as i32;
+            result1 = result1 + get_middle(update) as i32;
+        } else {
+            misshapen_ones.push(update);
         }
     }
-    result
+
+    for update in misshapen_ones {
+        result2 = result2 + fix_it(update, rules);
+    }
+
+    (result1, result2)
 }
 
 fn update_valid(update: &Vec<usize>, rules: &Vec<Rule>) -> bool {
@@ -70,4 +85,10 @@ fn update_valid_rule(update: &Vec<usize>, rule: &Rule) -> bool {
 fn get_middle(update: &Vec<usize>) -> usize {
     let middle = update[(update.len() / 2)];
     middle
+}
+
+fn fix_it(update: &Vec<usize>, rules: &Vec<Rule>) -> i32 {
+   // update.sort_by(|x, y| rules.iter().fold(Ordering::Equal, |acc, cmp| {}));
+
+    get_middle(update) as i32
 }
